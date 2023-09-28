@@ -1,9 +1,17 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import config from 'config';
 
-const port = 1337;
+import { connect } from '../utils/connect';
+import { log } from '../utils/logger';
+
+const host = config.get<string>('host');
+const port = config.get<number>('port');
+const protocol = config.get<boolean>('https') ? 'https' : 'http';
 
 const app = express();
 
 app.listen(port, async () => {
-    console.log(`Server is listening on port ${port}`);
+  log.info(`Server is running on ${protocol}://${host}:${port}`);
+
+  await connect();
 });
