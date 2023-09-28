@@ -7,4 +7,5 @@ export default {
   https: false,
   host: 'localhost',
   dbUri: process.env.MONGO_DB_URI,
+  saltWorkFactor: 10,
 };
