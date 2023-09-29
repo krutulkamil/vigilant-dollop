@@ -1,4 +1,4 @@
-import { Express, Request, Response } from 'express';
+import type { Express, Request, Response } from 'express';
 
 import { createUserHandler } from './controller/user.controller';
 import { validateResource } from './middleware/validateResource';
