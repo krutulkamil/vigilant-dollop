@@ -1,4 +1,4 @@
-import mongoose, { type HydratedDocument, type Schema } from 'mongoose';
+import mongoose, { type Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 import config from 'config';
 
@@ -8,7 +8,6 @@ export interface IUserDocument extends mongoose.Document {
   password: string;
   createdAt: Date;
   updatedAt: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema: Schema<IUserDocument> = new mongoose.Schema(
@@ -19,31 +18,27 @@ const userSchema: Schema<IUserDocument> = new mongoose.Schema(
   },
   {
     timestamps: true,
+    methods: {
+      async comparePassword(candidatePassword: string) {
+        try {
+          return await bcrypt.compare(candidatePassword, this.password);
+        } catch (error) {
+          return false;
+        }
+      },
+    },
   }
 );
 
-userSchema.pre<HydratedDocument<IUserDocument>>('save', async function (next) {
-  const user = this as IUserDocument;
-
-  if (!user.isModified('password')) {
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
     return next();
   }
 
   const salt = await bcrypt.genSalt(config.get<number>('saltWorkFactor'));
-  user.password = bcrypt.hashSync(user.password, salt);
+  this.password = bcrypt.hashSync(this.password, salt);
 
   return next();
 });
-
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-) {
-  const user = this as IUserDocument;
-  try {
-    return await bcrypt.compare(candidatePassword, user.password);
-  } catch (error) {
-    return false;
-  }
-};
 
 export const UserModel = mongoose.model('User', userSchema);
