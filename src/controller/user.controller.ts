@@ -15,12 +15,14 @@ export const createUserHandler = async (
     return res.status(200).send(user);
   } catch (error) {
     if (error instanceof Error) {
-      log.error('User Controller Error:', error.message);
-      return res.status(409).send({ error: error.message });
+      log.error(`User Controller Error: ${error.message}`);
+      return res
+        .status(409)
+        .send({ error: 'User with that email already exists!' });
     }
 
     return res
       .status(500)
-      .send('User Controller Error: An unexpected error occurred');
+      .send({ error: 'User Controller: An unexpected error occurred' });
   }
 };
