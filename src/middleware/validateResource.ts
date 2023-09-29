@@ -3,7 +3,7 @@ import { ZodError, type AnyZodObject } from 'zod';
 
 import { log } from '../utils/logger';
 
-export const validate =
+export const validateResource =
   (schema: AnyZodObject) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -15,10 +15,10 @@ export const validate =
       next();
     } catch (error: unknown) {
       if (error instanceof ZodError) {
-        for (const issue of error.issues) {
-          log.error(issue.message);
-          res.status(400).send(issue.message);
-        }
+        const issues = error.issues.map((issue) => issue.message);
+        log.error(`Zod Validation: ${issues.join(', ')}`);
+
+        res.status(400).send({ error: issues });
       } else {
         log.error('An unexpected error occurred:', error);
         res.status(400).send(error);
