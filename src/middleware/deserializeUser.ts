@@ -2,7 +2,6 @@ import type { Request, Response, NextFunction } from 'express';
 import { get } from 'lodash';
 
 import { verifyJwt } from '../utils/jwt.utils';
-import { log } from '../utils/logger';
 
 export const deserializeUser = async (
   req: Request,
@@ -17,7 +16,6 @@ export const deserializeUser = async (
   if (!accessToken) return next();
 
   const { expired, decoded } = verifyJwt(accessToken, 'accessTokenPublicKey');
-  log.info(`Deserializing user ${decoded}`);
 
   if (decoded) {
     res.locals.user = decoded;

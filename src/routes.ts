@@ -3,6 +3,7 @@ import type { Express, Request, Response } from 'express';
 import { createUserHandler } from './controller/user.controller';
 import {
   createUserSessionHandler,
+  deleteUserSessionHandler,
   getUserSessionsHandler,
 } from './controller/session.controller';
 import { validateResource } from './middleware/validateResource';
@@ -24,4 +25,6 @@ export const routes = (app: Express) => {
   );
 
   app.get('/api/sessions', requireUser, getUserSessionsHandler);
+
+  app.delete('/api/sessions', requireUser, deleteUserSessionHandler);
 };
