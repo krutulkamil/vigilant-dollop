@@ -12,9 +12,7 @@ export const createUserHandler = async (
     const user = await createUser(req.body);
     log.info('User Controller: User created successfully');
 
-    const { password: _, ...rest } = user.toObject();
-
-    return res.status(200).send(rest);
+    return res.status(200).send(user);
   } catch (error) {
     if (error instanceof Error) {
       log.error(`User Controller Error: ${error.message}`);

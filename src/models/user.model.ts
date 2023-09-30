@@ -8,6 +8,7 @@ export interface IUserDocument extends mongoose.Document {
   password: string;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema: Schema<IUserDocument> = new mongoose.Schema(
@@ -41,4 +42,4 @@ userSchema.pre('save', async function (next) {
   return next();
 });
 
-export const UserModel = mongoose.model('User', userSchema);
+export const UserModel = mongoose.model<IUserDocument>('User', userSchema);
