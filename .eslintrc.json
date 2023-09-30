@@ -19,8 +19,8 @@
             {
                 "groups": [
                     ["external", "builtin"],
-                    ["parent", "internal"],
-                    ["index", "sibling"]
+                    ["parent", "internal", "sibling"],
+                    ["index"]
                 ],
                 "newlines-between": "always"
             }

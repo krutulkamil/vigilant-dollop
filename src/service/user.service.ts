@@ -1,5 +1,7 @@
 import { omit } from 'lodash';
+import type { FilterQuery } from 'mongoose';
 
+import type { IUserDocument } from '../models/user.model';
 import { UserModel } from '../models/user.model';
 import { log } from '../utils/logger';
 import type { TCreateUserSchema } from '../schema/user.schema';
@@ -36,4 +38,8 @@ export const validatePassword = async ({
   if (!isValid) return false;
 
   return omit(user.toJSON(), 'password');
+};
+
+export const findUser = (query: FilterQuery<IUserDocument>) => {
+  return UserModel.findOne(query).lean();
 };

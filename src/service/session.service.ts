@@ -1,8 +1,12 @@
 import type { FilterQuery, UpdateQuery } from 'mongoose';
+import { get } from 'lodash';
+import config from 'config';
 
-import type { ISessionDocument } from '../models/session.model';
 import { SessionModel } from '../models/session.model';
 import { log } from '../utils/logger';
+import { signJwt, verifyJwt } from '../utils/jwt.utils';
+import { findUser } from './user.service';
+import type { ISessionDocument } from '../models/session.model';
 
 export const createSession = async (userId: string, userAgent: string) => {
   try {
@@ -47,4 +51,25 @@ export const updateSession = async (
     log.error(`Session Service (UPDATE) Error: ${error}`);
     throw new Error('Session Service: An unexpected error occurred');
   }
+};
+
+interface IReIssueAccessToken {
+  refreshToken: string;
+}
+
+export const reIssueAccessToken = async ({
+  refreshToken,
+}: IReIssueAccessToken) => {
+  const { decoded } = verifyJwt(refreshToken, 'refreshTokenPublicKey');
+  if (!decoded || !get(decoded, 'session')) return false;
+
+  const session = await SessionModel.findById(get(decoded, 'session'));
+  if (!session || !session.valid) return false;
+
+  const user = await findUser({ _id: session.user });
+  if (!user) return false;
+
+  return signJwt({ ...user, session: session._id }, 'accessTokenPrivateKey', {
+    expiresIn: config.get<string>('accessTokenTtl'),
+  });
 };
