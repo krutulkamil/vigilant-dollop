@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express';
 import config from 'config';
 
-import { createSession } from '../service/session.service';
-import { log } from '../utils/logger';
 import { validatePassword } from '../service/user.service';
+import { createSession, findSessions } from '../service/session.service';
 import { signJwt } from '../utils/jwt.utils';
+import { log } from '../utils/logger';
 
 export const createUserSessionHandler = async (req: Request, res: Response) => {
   try {
@@ -18,12 +18,14 @@ export const createUserSessionHandler = async (req: Request, res: Response) => {
     // Create access token
     const accessToken = signJwt(
       { ...user, session: session._id },
+      'accessTokenPrivateKey',
       { expiresIn: config.get<string>('accessTokenTtl') }
     );
 
     // Create refresh token
     const refreshToken = signJwt(
       { ...user, session: session._id },
+      'refreshTokenPrivateKey',
       { expiresIn: config.get<string>('refreshTokenTtl') }
     );
 
@@ -40,4 +42,13 @@ export const createUserSessionHandler = async (req: Request, res: Response) => {
       .status(500)
       .send({ error: 'Session Controller: An unexpected error occurred' });
   }
+};
+
+export const getUserSessionsHandler = async (_: Request, res: Response) => {
+  const userId = res.locals.user._id;
+  log.info(`Session Controller: Getting sessions for user ${userId}`);
+
+  const sessions = await findSessions({ user: userId, valid: true });
+
+  return res.status(200).send(sessions);
 };
