@@ -13,7 +13,7 @@
         "prettier/prettier": "error",
         "no-console": "error",
 
-        "no-unused-vars": "warn",
+        "no-unused-vars": "off",
         "import/order": [
             "error",
             {
